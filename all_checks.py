@@ -1,6 +1,6 @@
 #!/usr/env python3
 import os
-import shutill
+import shutil
 import sys
 
 def check_reboot():
@@ -9,7 +9,7 @@ def check_reboot():
 
 def check_disk_full(disk, min_gb, min_percent):
 	"""Returns True if there isn't enough disk space, False otherwise."""
-	du = shutill.disk_usage(disk)
+	du = shutil.disk_usage(disk)
 	# Calculate the percenage of free space
 	percent_free = 100 * du.free / du.total
 	# Calculate how many free gigabytes
@@ -25,13 +25,21 @@ def check_root_full():
 
 
 def main():
-	# pass
-	if check_reboot():
-		print("Pending Reboot.")
-		sys.exit(1)
-	if check_root_full():
-			print("Root partiton full.")
+	checks=[
+		(check_reboot, "Pending Reboot"),
+		(check_root_full, "Root partiton full" ),
+	]
+	everthing_ok= True
+	for check, msg in checks:
+		if check():
+			print(msg)
 			sys.exit(1)
+			everthing_ok= False
+	if not everthing_ok:
+		sys.exit(1)
+
+		
+			
 	print("Everthing ok.")
 	sys.exit(0)
 
